@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Air Quality Monitoring — Professional Dashboard</title>
+
+<!-- Fonts (system fallback ok) -->
+<style>
+  :root{
+    --bg1: linear-gradient(180deg,#0f172a 0%, #071026 100%);
+    --glass: rgba(255,255,255,0.06);
+    --glass-2: rgba(255,255,255,0.04);
+    --accent: #34d399; /* teal */
+    --accent2: #60a5fa; /* blue */
+    --muted: rgba(255,255,255,0.75);
+    --card-radius: 16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:#fff}
+  body{
+    background: var(--bg1);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:28px;
+  }
+
+  /* Top header */
+  header{
+    max-width:1180px; margin:0 auto 22px; display:flex; gap:16px; align-items:center; justify-content:space-between;
+  }
+  .brand{
+    display:flex; gap:14px; align-items:center;
+  }
+  .logo{
+    width:64px; height:64px; border-radius:14px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#7c3aed,#06b6d4); font-weight:800; font-size:20px; box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+  }
+  h1{ margin:0; font-size:22px; letter-spacing:-0.2px; }
+  .subtitle{ color:var(--muted); font-size:13px; margin-top:3px; }
+
+  /* Layout */
+  main{ max-width:1180px; margin:0 auto; }
+  .top-row{ display:flex; gap:18px; flex-wrap:wrap; align-items:stretch; }
+  .left-col{ flex:1 1 680px; min-width:320px; }
+  .right-col{ width:340px; min-width:280px; }
+
+  /* Cards grid */
+  .cards{ display:grid; grid-template-columns: repeat(3,1fr); gap:14px; margin-bottom:18px; }
+  @media(max-width:900px){ .cards{ grid-template-columns: repeat(1,1fr); } }
+
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    border-radius: var(--card-radius);
+    padding:18px;
+    box-shadow: 0 6px 30px rgba(2,6,23,0.6);
+    display:flex; gap:12px; align-items:center;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover{ transform: translateY(-6px); box-shadow: 0 12px 40px rgba(2,6,23,0.75); }
+
+  .icon{
+    width:56px; height:56px; border-radius:12px; display:grid; place-items:center;
+    background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.04);
+    flex-shrink:0;
+  }
+  .metric{
+    text-align:left;
+  }
+  .metric .value{ font-size:20px; font-weight:700; }
+  .metric .label{ color:var(--muted); font-size:13px; margin-top:4px; }
+
+  /* AQ big status card */
+  .status-card{
+    margin-top:6px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border-radius:14px; padding:18px; box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+  }
+  .aq-big{
+    display:flex; align-items:center; gap:18px;
+  }
+  .aq-bubble{
+    width:90px;height:90px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:20px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 2px solid rgba(255,255,255,0.04);
+  }
+  .aq-info{ text-align:left; }
+  .aq-info .title{ font-weight:800; font-size:18px; }
+  .aq-info .desc{ color:var(--muted); font-size:13px; margin-top:6px; }
+
+  /* right column box */
+  .panel{
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border-radius:14px; padding:16px; box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+  }
+  .panel h3{ margin:0 0 10px 0; }
+  .small { color:var(--muted); font-size:13px; }
+
+  /* charts */
+  .charts{ display:grid; gap:12px; margin-top:14px; }
+  iframe{ width:100%; height:220px; border-radius:10px; border:0; }
+
+  /* color classes for AQ */
+  .good { color:#34d399; border-color: rgba(52,211,153,0.12); }
+  .moderate { color:#fbbf24; border-color: rgba(251,191,36,0.12); }
+  .poor { color:#fb6e2e; border-color: rgba(251,110,46,0.12); }
+  .verypoor { color:#a78bfa; border-color: rgba(167,139,250,0.12); }
+  .severe { color:#ff4949; border-color: rgba(255,73,73,0.12); }
+
+  footer { max-width:1180px; margin:22px auto 0; color:var(--muted); font-size:13px; text-align:center; }
+  .footer-links a{ color: #93c5fd; text-decoration:none; margin-left:8px; font-weight:600; }
+
+  /* small responsive tweaks */
+  @media(max-width:880px){
+    .top-row{flex-direction:column;}
+    .right-col{ width:100%;}
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">AQ</div>
+      <div>
+        <h1>Air Quality Monitoring — Professional Dashboard</h1>
+        <div class="subtitle">ESP32 • ThingSpeak • Live Cloud Monitoring</div>
+      </div>
+    </div>
+
+    <div style="text-align:right;">
+      <div class="small">Channel: <strong>Air Quality Monitoring System</strong></div>
+      <div class="small">Last update: <span id="lastUpdate">--</span></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="top-row">
+      <div class="left-col">
+        <div class="cards" aria-hidden="false">
+          <!-- Temperature -->
+          <div class="card">
+            <div class="icon" aria-hidden="true">
+              <!-- temp svg -->
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V5a2 2 0 10-4 0v9.76A4 4 0 1014 14.76z"></path></svg>
+            </div>
+            <div class="metric">
+              <div class="value" id="temp">-- °C</div>
+              <div class="label">Temperature</div>
+            </div>
+          </div>
+
+          <!-- Humidity -->
+          <div class="card">
+            <div class="icon">
+              <!-- humidity SVG -->
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s-6 5.5-6 10a6 6 0 0 0 12 0c0-4.5-6-10-6-10z"></path></svg>
+            </div>
+            <div class="metric">
+              <div class="value" id="hum">-- %</div>
+              <div class="label">Humidity</div>
+            </div>
+          </div>
+
+          <!-- Air Quality -->
+          <div class="card">
+            <div class="icon">
+              <!-- air SVG -->
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h13M3 6h9M3 18h7"></path></svg>
+            </div>
+            <div class="metric">
+              <div class="value" id="air">-- ppm</div>
+              <div class="label">Air Quality (MQ135)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AQ status large -->
+        <div class="status-card" style="margin-top:12px;">
+          <div class="aq-big">
+            <div class="aq-bubble" id="aqBubble">--</div>
+            <div class="aq-info">
+              <div class="title" id="aqTitle">Air Quality Status</div>
+              <div class="desc" id="aqDesc">Waiting for data...</div>
+              <div style="height:10px;"></div>
+              <div class="small">Sensor: MQ135 • Channel: <strong>3142980</strong></div>
+            </div>
+          </div>
+
+          <!-- small legend -->
+          <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px;"><span style="display:inline-block;width:12px;height:12px;background:#34d399;border-radius:3px;margin-right:8px;"></span>Good</div>
+            <div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px;"><span style="display:inline-block;width:12px;height:12px;background:#fbbf24;border-radius:3px;margin-right:8px;"></span>Moderate</div>
+            <div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px;"><span style="display:inline-block;width:12px;height:12px;background:#fb6e2e;border-radius:3px;margin-right:8px;"></span>Poor</div>
+            <div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px;"><span style="display:inline-block;width:12px;height:12px;background:#a78bfa;border-radius:3px;margin-right:8px;"></span>Very Poor</div>
+            <div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px;"><span style="display:inline-block;width:12px;height:12px;background:#ff4949;border-radius:3px;margin-right:8px;"></span>Severe</div>
+          </div>
+        </div>
+
+        <!-- charts area -->
+        <div class="charts" style="margin-top:14px;">
+          <div class="panel">
+            <h3 style="margin:0;">Live Charts</h3>
+            <div class="small" style="margin-bottom:8px;">(Last 60 readings — ThingSpeak)</div>
+            <!-- these iframe embeds include your read API key so they work if channel is private -->
+            <iframe src="https://thingspeak.com/channels/3142980/charts/1?api_key=0N8YFEHHAJ93AA8D&bgcolor=%230b1220&color=%23ff6b6b&dynamic=true&results=60&type=line"></iframe>
+            <iframe src="https://thingspeak.com/channels/3142980/charts/2?api_key=0N8YFEHHAJ93AA8D&bgcolor=%230b1220&color=%2393c5fd&dynamic=true&results=60&type=line"></iframe>
+            <iframe src="https://thingspeak.com/channels/3142980/charts/3?api_key=0N8YFEHHAJ93AA8D&bgcolor=%230b1220&color=%23a7f3d0&dynamic=true&results=60&type=line"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="right-col">
+        <div class="panel">
+          <h3>Device Info</h3>
+          <div class="small">Channel: <strong>3142980</strong></div>
+          <div class="small">Owner: Partiyush</div>
+          <div style="height:12px;"></div>
+          <h3 style="margin-top:10px;">Quick Controls</h3>
+          <div class="small" style="margin-bottom:8px;">(Simulated - requires device-side endpoint to actuate buzzer)</div>
+          <button id="alertTest" style="background:#ef4444;border:0;padding:10px 14px;border-radius:8px;color:white;font-weight:700;cursor:pointer;">Simulate Alert</button>
+          <div style="height:12px;"></div>
+
+          <h3 style="margin-top:12px;">Air Quality Ranges</h3>
+          <ul style="text-align:left; padding-left:18px; margin:10px 0 0 0;">
+            <li class="small">Good: 0 - 1000 ppm</li>
+            <li class="small">Moderate: 1001 - 2000 ppm</li>
+            <li class="small">Poor: 2001 - 3000 ppm</li>
+            <li class="small">Very Poor: 3001 - 4000 ppm</li>
+            <li class="small">Severe: &gt; 4000 ppm</li>
+          </ul>
+        </div>
+
+        <div style="height:14px;"></div>
+
+        <div class="panel" style="text-align:left;">
+          <h3>About</h3>
+          <p class="small">This dashboard fetches the latest feed from ThingSpeak using your channel ID and Read API Key so it works for private channels as well.</p>
+          <p class="small">Built for IoT project — ESP32 + MQ135 + DHT sensor</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Made with ❤ by Partiyush • ThingSpeak Channel 3142980 • <span class="footer-links">Host: GitHub Pages / Netlify</span>
+  </footer>
+
+<script>
+  // ====== CONFIG (already set from your screenshots) ======
+  const channelID = 3142980;
+  const readAPIKey = "0N8YFEHHAJ93AA8D";
+
+  // field mapping
+  const F_TEMP = "field1";
+  const F_HUM  = "field2";
+  const F_AIR  = "field3";
+
+  // thresholds
+  function classifyAQ(v){
+    const n = Number(v);
+    if (isNaN(n)) return {cls:"", label:"Unknown", desc:"No data"};
+    if (n <= 1000) return {cls:"good", label:"Good", desc:"Air is clean and safe to breathe"};
+    if (n <= 2000) return {cls:"moderate", label:"Moderate", desc:"Acceptable but may cause discomfort"};
+    if (n <= 3000) return {cls:"poor", label:"Poor", desc:"Unhealthy for sensitive groups"};
+    if (n <= 4000) return {cls:"verypoor", label:"Very Poor", desc:"Harmful — limit exposure"};
+    return {cls:"severe", label:"Severe", desc:"Dangerous — immediate action needed"};
+  }
+
+  async function fetchLatest(){
+    const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?results=1&api_key=${readAPIKey}`;
+    try {
+      const res = await fetch(url, {cache: "no-store"});
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const json = await res.json();
+      const feed = (json && json.feeds && json.feeds[0]) ? json.feeds[0] : null;
+
+      if (!feed) {
+        document.getElementById("temp").textContent = "-- °C";
+        document.getElementById("hum").textContent = "-- %";
+        document.getElementById("air").textContent = "-- ppm";
+        document.getElementById("aqTitle").textContent = "No data";
+        document.getElementById("aqDesc").textContent = "No feed available";
+        return;
+      }
+
+      // parse
+      const t = feed[F_TEMP] ? Number(feed[F_TEMP]).toFixed(1) : null;
+      const h = feed[F_HUM]  ? Number(feed[F_HUM]).toFixed(1) : null;
+      const a = feed[F_AIR]  ? Number(feed[F_AIR]).toFixed(0) : null;
+
+      document.getElementById("temp").textContent = t !== null ? `${t} °C` : "-- °C";
+      document.getElementById("hum").textContent  = h !== null ? `${h} %` : "-- %";
+      document.getElementById("air").textContent  = a !== null ? `${a} ppm` : "-- ppm";
+
+      // AQ bubble + status
+      const st = classifyAQ(a);
+      const bubble = document.getElementById("aqBubble");
+      const title  = document.getElementById("aqTitle");
+      const desc   = document.getElementById("aqDesc");
+
+      bubble.textContent = a !== null ? a : "--";
+      bubble.className = "aq-bubble " + st.cls;
+      title.textContent = st.label;
+      desc.textContent = st.desc;
+
+      // last update timestamp
+      const now = new Date();
+      document.getElementById("lastUpdate").textContent = now.toLocaleString();
+
+    } catch (err) {
+      console.error("Fetch error:", err);
+      document.getElementById("aqDesc").textContent = "Error fetching data";
+    }
+  }
+
+  // initial + interval
+  fetchLatest();
+  setInterval(fetchLatest, 15000);
+
+  // simulate alert button (visual)
+  document.getElementById("alertTest").addEventListener("click", () => {
+    const bubble = document.getElementById("aqBubble");
+    bubble.classList.add("severe");
+    document.getElementById("aqTitle").textContent = "Severe (Simulated)";
+    document.getElementById("aqDesc").textContent = "This is a simulated alert — device-side code needed to actually trigger buzzer.";
+    // remove simulation after 6s
+    setTimeout(fetchLatest, 6000);
+  });
+</script>
+</body>
+</html>
